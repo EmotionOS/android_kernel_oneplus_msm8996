@@ -284,7 +284,7 @@ static int F12_2D_QUERY_BASE;
 static int F12_2D_CMD_BASE;
 static int F12_2D_CTRL_BASE;
 static int F12_2D_DATA_BASE;
-static int F12_2D_DATA15;
+static int F12_2D_DATA15; 
 
 static int F34_FLASH_QUERY_BASE;
 static int F34_FLASH_CMD_BASE;
@@ -1591,8 +1591,6 @@ static irqreturn_t synaptics_irq_thread_fn(int irq, void *dev_id)
 	uint8_t status = 0;
 	uint8_t inte = 0;
 
-	ts->timestamp = ktime_get();
-
 	if (atomic_read(&ts->is_stop) == 1)
 	{
 		return IRQ_HANDLED;
@@ -1601,6 +1599,8 @@ static irqreturn_t synaptics_irq_thread_fn(int irq, void *dev_id)
 	if( ts->enable_remote) {
 		return IRQ_HANDLED;
 	}
+
+	ts->timestamp = ktime_get();
 
 	ret = synaptics_rmi4_i2c_write_byte(ts->client, 0xff, 0x00 );
 	ret = synaptics_rmi4_i2c_read_word(ts->client, F01_RMI_DATA_BASE);
@@ -1637,7 +1637,6 @@ static irqreturn_t synaptics_irq_thread_fn(int irq, void *dev_id)
 }
 #endif
 
-//wangwenxue@BSP add for change baseline_test to "proc\touchpanel\baseline_test"  begin
 static ssize_t tp_baseline_test_read_func(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
 {
 	char page[PAGESIZE];
@@ -1779,10 +1778,10 @@ static ssize_t gesture_switch_write_func(struct file *file, const char __user *p
 
 static void gesture_enable(struct synaptics_ts_data *ts)
 {
-	ts->gesture_enable = gestures_switch || s2w_switch || dt2w_switch
-			|| double_tap_enable || letter_o_enable || down_arrow_enable || up_arrow_enable
-			|| left_arrow_enable || right_arrow_enable || double_swipe_enable || right_swipe_enable
-			|| left_swipe_enable || down_swipe_enable || up_swipe_enable ? 1 : 0;
+	ts->gesture_enable = gestures_switch || s2w_switch || dt2w_switch ||
+		double_tap_enable || letter_o_enable || down_arrow_enable || up_arrow_enable ||
+		left_arrow_enable || right_arrow_enable || double_swipe_enable || right_swipe_enable ||
+		left_swipe_enable || down_swipe_enable || up_swipe_enable ? 1 : 0;
 }
 
 // chenggang.li@BSP.TP modified for oem 2014-08-08 create node
@@ -4629,8 +4628,8 @@ static int synaptics_i2c_suspend(struct device *dev)
 		return -1;
 	}
     if(ts->support_hw_poweroff && (ts->gesture_enable == 0)){
-	    atomic_set(&ts->is_stop,1);
-	    touch_disable(ts);
+		atomic_set(&ts->is_stop,1);
+		touch_disable(ts);
 	    ret = tpd_power(ts,0);
 	    if (ret < 0)
 	        TPD_ERR("%s power off err\n",__func__);

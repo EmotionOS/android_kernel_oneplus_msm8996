@@ -329,7 +329,14 @@ static ssize_t report_home_set(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t count)
 {
 	struct  fpc1020_data *fpc1020 = dev_get_drvdata(dev);
-    unsigned long time;
+    	unsigned long time;
+
+	bool ignore_keypad;
+
+	if (s1302_is_keypad_stopped() || virtual_key_enable)
+		ignore_keypad = true;
+	else
+		ignore_keypad = false;
 
 	if(ignor_home_for_ESD)
 		return -EINVAL;
@@ -338,9 +345,9 @@ static ssize_t report_home_set(struct device *dev,
 #ifdef CONFIG_BOEFFLA_TOUCH_KEY_CONTROL
 		btkc_touch_button();
 #endif
-        if(virtual_key_enable){
+        if(ignore_keypad){
                 key_home_pressed = true;
-        }else if (!s1302_is_keypad_stopped()) {
+        }else{
             input_report_key(fpc1020->input_dev,
                             KEY_HOME, 1);
             input_sync(fpc1020->input_dev);
@@ -348,7 +355,7 @@ static ssize_t report_home_set(struct device *dev,
 	}
 	else if (!strncmp(buf, "up", strlen("up")))
 	{
-        if(virtual_key_enable){
+        if(ignore_keypad){
                 key_home_pressed = false;
         }else{
             input_report_key(fpc1020->input_dev,
@@ -365,7 +372,7 @@ static ssize_t report_home_set(struct device *dev,
 	}
 	else
 		return -EINVAL;
-    if(virtual_key_enable){
+    if(ignore_keypad){
         if(!key_home_pressed){
             reinit_completion(&key_cm);
             time = wait_for_completion_timeout(&key_cm,msecs_to_jiffies(60));

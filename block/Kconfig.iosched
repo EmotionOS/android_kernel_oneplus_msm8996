@@ -89,6 +89,7 @@ config CGROUP_BFQIO
 	  filesystem interface.  The name of the subsystem will be
 	  bfqio.
 
+<<<<<<< HEAD
 config IOSCHED_ZEN
 	tristate "Zen I/O scheduler"
 	default y
@@ -96,6 +97,8 @@ config IOSCHED_ZEN
 	  FCFS, dispatches are back-inserted, deadlines ensure fairness.
 	  Should work best with devices where there is no travel delay.
 
+=======
+>>>>>>> LAOS/cm-14.1
 choice
 	prompt "Default I/O scheduler"
 	default DEFAULT_CFQ
